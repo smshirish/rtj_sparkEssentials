@@ -2,7 +2,7 @@ package part1recap
 
 import scala.math.Ordering.BooleanOrdering
 
-object ScalaRecap extends App {
+object ScalaRecap  {
 /**
 Values and variables
  */
@@ -66,13 +66,14 @@ Values and variables
   }
 
   //pattern matching for exception handling
+  /**
   try{
     throw new NullPointerException("XXX")
   }catch{
     case e: NullPointerException => "Got NullPointerException "
     case _: "Unknown Exception type"
   }
-
+**/
   /**
     * Partial functions
     */
@@ -84,7 +85,7 @@ Values and variables
   }
 
   //short form partial function  , partial funtion taking int returning int  aPartialFunctionExample : PartialFunction[Int,Int]
-  val aPartialFunctionExample:PartialFunction[Int,Int]  = {
+  val aPartialFunction:PartialFunction[Int,Int]  = {
     case 1 => 43
     case 2 => 56
     case _ => 999
@@ -95,7 +96,7 @@ Values and variables
     */
 
   //implicits- Auto injection by compiler
-  def methodWithImplicitArgument( x: Int ): Int =  x + 43
+  def methodWithImplicitArgument(implicit x: Int ): Int =  x + 43
 
   implicit val implicitVal: Int = 67
 
