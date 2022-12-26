@@ -32,6 +32,8 @@ RUN wget --no-verbose https://archive.apache.org/dist/spark/spark-${SPARK_VERSIO
       && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
       && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 
+##shirish changes start .Add doc2 unix to base image so thaat it can be used by all other docker images 
+RUN apt-get update && apt-get install dos2unix
 
 
 # Fix the value of PYTHONHASHSEED
