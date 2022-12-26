@@ -76,6 +76,32 @@ object DataFramesBasics extends App{
   manualCarsDF.printSchema()
   manualCarsDFWithImplicits.printSchema()
 
+  /**
+    * Exercise 1: Create a manual DF describing smart phone
+    */
+
+  val smartPhones = Seq(
+    //model name, Manufacturer , YearOfRelease, OS, cameraPixelMB, RAM , StorageGB
+    ("Pixel 6 -Pro","Google",2022,"Android",32,16,256),
+    ("Pixel 6 ","Google",2022,"Android",16,8,128)
+  )
+
+  val manualDFSmartPhonesWithInferredSchema = spark.createDataFrame(smartPhones)
+  manualDFSmartPhonesWithInferredSchema.printSchema()
+  manualDFSmartPhonesWithInferredSchema.show
+
+  val manualDFSmartPhonesWithSchema = smartPhones.toDF("model name", "Manufacturer" , "YearOfRelease", "OS", "cameraPixelMB", "RAM" , "StorageGB")
+  manualDFSmartPhonesWithSchema.printSchema()
+  manualDFSmartPhonesWithSchema.show()
 
 
+  /**
+    * Exercise 2: Read movies.json  file from data folder
+    * print schema
+    * count number of rows
+    */
+
+  val moviesDF = spark.read.format("json").option("inferSchema","true").load("src/main/resources/data/movies.json")
+  moviesDF.printSchema()
+  println(moviesDF.count())
 }
