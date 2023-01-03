@@ -1,0 +1,82 @@
+package part2dataframes
+
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.functions.{col,column,expr}
+object JoinsExercises extends App{
+
+  //app to run my code snippets
+  val spark = SparkSession.builder()
+    .config("spark.master","local")
+    .appName("JoinsExercises")
+    .getOrCreate()
+
+  private def readTableAsDataframe(tableName: String) = {
+    spark.read
+      .format("jdbc")
+      .option("driver", "org.postgresql.Driver")
+      .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
+      .option("user", "docker")
+      .option("password", "docker")
+      .option("dbtable", s"public.$tableName" )
+      .load()
+  }
+
+  //reading from remote DB
+  val employeesDF = readTableAsDataframe("employees")
+
+  //employeesDF.show(false)
+
+  val salariesDF = readTableAsDataframe("salaries").withColumnRenamed("emp_no","emp_no_salaries")
+
+  /**
+    * Joins exercises
+    * 1: Show all employeed and their max salary (Salary might have changed over time)
+    * 2: Show all employees who were never managers
+    * 3:find job titles of best paid 10 employees in the company
+    */
+
+
+  val maxSalariesDF =  salariesDF.groupBy(col("emp_no_salaries"))
+    .agg(
+      max(col("salary")).as("max_salary")
+    ).withColumnRenamed("emp_no_salaries","emp_no_2")
+
+  maxSalariesDF.show
+
+  val empWithSalariesDF = employeesDF
+    .join(maxSalariesDF, (employeesDF.col("emp_no") === maxSalariesDF.col("emp_no_2")),"inner" )
+    .select("emp_no","first_name","last_name","max_salary").orderBy()
+  /// .show(false)
+
+  val managersDF = readTableAsDataframe("dept_manager")
+
+  ///managersDF.show
+
+  val empsWHoWereNotManagers = employeesDF.join(managersDF, employeesDF.col("emp_no") === managersDF.col("emp_no"),"leftanti" )
+  println("!!!!!empsWHoWereNotManagers!!!!!")
+  ///empsWHoWereNotManagers.show(false)
+
+  salariesDF.printSchema()
+  salariesDF.show(100,false)
+
+  //job title of best paid top 10 employees.
+  val latestEmpJobTitlesDF = readTableAsDataframe("titles")
+    .groupBy(col("emp_no"))
+    .agg( max(col("to_date")).as("latest_title_to_date"))
+    .withColumnRenamed("emp_no","emp_no_2")
+  ///latestEmpJobTitlesDF.show(100,false)
+
+  val empWithLatestJobTitles = employeesDF.join(latestEmpJobTitlesDF, employeesDF.col("emp_no") === latestEmpJobTitlesDF.col("emp_no_2") )
+  empWithLatestJobTitles.show(100,false)
+
+  val latestSalariesDF = salariesDF
+    .groupBy(col("emp_no_salaries"))
+    .agg( max(col("to_date")).as("latest_salary_to_date"))
+
+  val empLatestSaleriesWithTItles = empWithLatestJobTitles.join(salariesDF,
+    (empWithLatestJobTitles.col("emp_no") === salariesDF.col("emp_no_salaries")) and (empWithLatestJobTitles.col("latest_title_to_date") === salariesDF.col("to_date")))
+    .orderBy("emp_no")
+  empLatestSaleriesWithTItles.show(100,false)
+
+}
