@@ -42,18 +42,20 @@ object JoinsExercises extends App{
       max(col("salary")).as("max_salary")
     ).withColumnRenamed("emp_no_salaries","emp_no_2")
 
-  maxSalariesDF.show
+  ///maxSalariesDF.show
 
-  val empWithSalariesDF = employeesDF
+  //exercise 1:Show employees with max salaries
+  val empWithMaxSalariesDF = employeesDF
     .join(maxSalariesDF, (employeesDF.col("emp_no") === maxSalariesDF.col("emp_no_2")),"inner" )
     .select("emp_no","first_name","last_name","max_salary").orderBy()
-  /// .show(false)
+  /// empWithMaxSalariesDF.show(false)
 
   val managersDF = readTableAsDataframe("dept_manager")
 
   ///managersDF.show
 
-  val empsWHoWereNotManagers = employeesDF.join(managersDF, employeesDF.col("emp_no") === managersDF.col("emp_no"),"leftanti" )
+  //exercise 2:Show employees who were never managers.
+  val empsWhoWereNotManagers = employeesDF.join(managersDF, employeesDF.col("emp_no") === managersDF.col("emp_no"),"leftanti" )
   println("!!!!!empsWHoWereNotManagers!!!!!")
   ///empsWHoWereNotManagers.show(false)
 
@@ -72,7 +74,7 @@ object JoinsExercises extends App{
 
   val latestSalariesDF = salariesDF
     .groupBy(col("emp_no_salaries"))
-    .agg( max(col("to_date")).as("latest_salary_to_date"))
+    .agg( max(col("to_date").desc).as("latest_salary_to_date")).limit(10)
 
   val empLatestSaleriesWithTItles = empWithLatestJobTitles.join(salariesDF,
     (empWithLatestJobTitles.col("emp_no") === salariesDF.col("emp_no_salaries")) and (empWithLatestJobTitles.col("latest_title_to_date") === salariesDF.col("to_date")))
