@@ -64,11 +64,7 @@ object Joins extends App {
   import org.apache.spark.sql.functions.{col,column,expr}
   guitaristsDF.join(guitarsDF.withColumnRenamed("id","guitarID"), expr("array_contains(guitars, guitarID)") ).show
 
-  /**
-    * Joins exercises
-    * 1: Show all employeed and their max salary (Salary might have changed over time)
-    * 2: Show all employees who were never managers
-    * 3:find job titles of best paid 10 employees in the company
-    */
+  //another way to compare with equalTo
+  guitaristsDF.join(bandsMdDF, guitaristsDF.col("id") equalTo  bandsMdDF.col("bandID") ).show()
 
 }

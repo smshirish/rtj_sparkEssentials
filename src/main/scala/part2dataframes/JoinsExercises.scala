@@ -5,6 +5,13 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.functions.{col,column,expr}
 object JoinsExercises extends App{
 
+  /**
+    * Joins exercises
+    * 1: Show all employeed and their max salary (Salary might have changed over time)
+    * 2: Show all employees who were never managers
+    * 3:find job titles of best paid 10 employees in the company
+    */
+
   //app to run my code snippets
   val spark = SparkSession.builder()
     .config("spark.master","local")
@@ -29,12 +36,7 @@ object JoinsExercises extends App{
 
   val salariesDF = readTableAsDataframe("salaries").withColumnRenamed("emp_no","emp_no_salaries")
 
-  /**
-    * Joins exercises
-    * 1: Show all employeed and their max salary (Salary might have changed over time)
-    * 2: Show all employees who were never managers
-    * 3:find job titles of best paid 10 employees in the company
-    */
+
 
 
   val maxSalariesDF =  salariesDF.groupBy(col("emp_no_salaries"))
