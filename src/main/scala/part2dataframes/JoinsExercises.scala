@@ -2,7 +2,8 @@ package part2dataframes
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.functions.{col,column,expr}
+import org.apache.spark.sql.functions.{col, column, expr}
+import part1recap.SparkUtils
 object JoinsExercises extends App{
 
   /**
@@ -18,19 +19,8 @@ object JoinsExercises extends App{
     .appName("JoinsExercises")
     .getOrCreate()
 
-  def readTable2(spark2:SparkSession, tableName: String) = {
-    spark2.read
-      .format("jdbc")
-      .option("driver", "org.postgresql.Driver")
-      .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
-      .option("user", "docker")
-      .option("password", "docker")
-      .option("dbtable", s"public.$tableName" )
-      .load()
-  }
-
-   def readTable(tableName: String) = {
-     readTable2(spark,tableName)
+  def readTable(tableName: String) = {
+     SparkUtils.readTable(spark,tableName)
   }
 
   //reading from remote DB

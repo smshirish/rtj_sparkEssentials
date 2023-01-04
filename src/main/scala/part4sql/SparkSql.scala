@@ -2,15 +2,18 @@ package part4sql
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.functions._
+import part1recap.SparkUtils
 import part2dataframes.JoinsExercises
 import part2dataframes.JoinsExercises._
 
 object SparkSql extends App{
 
+  val sparkDBBasePath = "src/main/resources/warehouse"
+
   val spark = SparkSession.builder()
     .appName("SparkSQL")
     .config("spark.master","local")
-    .config("spark.sql.warehouse.dir","src/main/resources/warehouse")
+    .config("spark.sql.warehouse.dir",sparkDBBasePath)
     //option below commented out as it does not work .Not a show stopped as one time transfer stil possible
   //  .config("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation","true")  //Spark 2 only hack to allow table override
     .getOrCreate()
@@ -40,29 +43,15 @@ object SparkSql extends App{
   val dataBases = spark.sql(" show databases ")
  /// dataBases.show()
 
-  val empDF = JoinsExercises.readTable2(spark,"employees")
-  ///empDF.show()
+  val empDF = SparkUtils.readTable(spark,"employees")
+  empDF.show()
 
   /**
-    * This table is created below again, so commenting out as overwrite option not working with spark3.0
-
-  empDF.write
-    .mode(SaveMode.Overwrite)
-    .saveAsTable("employees")
-  **/
-
-  def transferTables(tableNames:List[String]) =  tableNames.foreach{ tableName =>
-      val tableDF = JoinsExercises.readTable2(spark,tableName)
-      tableDF.write
-        .mode(SaveMode.Overwrite)
-        .saveAsTable(tableName)
-    }
-
-  /**
-    * the tansfer below works only once as the option overWrite existing tables does not work
+    * the tansfer below works only if existing DB table directories are deleted each time.
     * "spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation","true""  does not work
-    */
-  transferTables(List(
+    **/
+
+  SparkUtils.transferTables(spark, sparkDBBasePath, List(
     "departments",
     "dept_emp",
     "dept_manager",
