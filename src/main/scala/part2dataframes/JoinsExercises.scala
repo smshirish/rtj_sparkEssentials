@@ -18,7 +18,7 @@ object JoinsExercises extends App{
     .appName("JoinsExercises")
     .getOrCreate()
 
-  def readTableAsDataframe2(spark2:SparkSession , tableName: String) = {
+  def readTable2(spark2:SparkSession, tableName: String) = {
     spark2.read
       .format("jdbc")
       .option("driver", "org.postgresql.Driver")
@@ -29,16 +29,16 @@ object JoinsExercises extends App{
       .load()
   }
 
-   def readTableAsDataframe(tableName: String) = {
-     readTableAsDataframe2(spark,tableName)
+   def readTable(tableName: String) = {
+     readTable2(spark,tableName)
   }
 
   //reading from remote DB
-  val employeesDF = readTableAsDataframe("employees")
+  val employeesDF = readTable("employees")
 
   //employeesDF.show(false)
 
-  val salariesDF = readTableAsDataframe("salaries").withColumnRenamed("emp_no","emp_no_salaries")
+  val salariesDF = readTable("salaries").withColumnRenamed("emp_no","emp_no_salaries")
 
 
 
@@ -56,7 +56,7 @@ object JoinsExercises extends App{
     .select("emp_no","first_name","last_name","max_salary").orderBy()
   /// empWithMaxSalariesDF.show(false)
 
-  val managersDF = readTableAsDataframe("dept_manager")
+  val managersDF = readTable("dept_manager")
 
   ///managersDF.show
 
@@ -69,7 +69,7 @@ object JoinsExercises extends App{
   salariesDF.show(100,false)
 
   //job title of best paid top 10 employees.
-  val latestEmpJobTitlesDF = readTableAsDataframe("titles")
+  val latestEmpJobTitlesDF = readTable("titles")
     .groupBy(col("emp_no"))
     .agg( max(col("to_date")).as("latest_title_to_date"))
     .withColumnRenamed("emp_no","emp_no_2")
