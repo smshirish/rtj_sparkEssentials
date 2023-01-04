@@ -78,4 +78,18 @@ object CompleyTypes extends App {
   moviesDF.selectExpr("Title", " (US_Gross, Worldwide_Gross) as Profit")
     .selectExpr("Title","Profit.US_Gross as US_Profit2")
     //.show(100)
+
+  /**
+    * Arrays
+    */
+  val moviesWithWords = moviesDF.select(col("Title"), split(col("Title"), " |,").as("Title_words"))
+    //.show(100,false)
+
+  moviesWithWords.select(
+    col("Title"),
+    expr("Title_words[0]"),
+    size(col("Title_words")),
+    array_contains(col("Title_words"), "Love")
+  ).show
+
 }
