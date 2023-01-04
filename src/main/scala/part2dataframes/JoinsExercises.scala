@@ -18,8 +18,8 @@ object JoinsExercises extends App{
     .appName("JoinsExercises")
     .getOrCreate()
 
-  private def readTableAsDataframe(tableName: String) = {
-    spark.read
+  def readTableAsDataframe2(spark2:SparkSession , tableName: String) = {
+    spark2.read
       .format("jdbc")
       .option("driver", "org.postgresql.Driver")
       .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
@@ -27,6 +27,10 @@ object JoinsExercises extends App{
       .option("password", "docker")
       .option("dbtable", s"public.$tableName" )
       .load()
+  }
+
+   def readTableAsDataframe(tableName: String) = {
+     readTableAsDataframe2(spark,tableName)
   }
 
   //reading from remote DB
