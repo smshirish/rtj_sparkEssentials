@@ -44,6 +44,8 @@ object SparkSql extends App{
   ///empDF.show()
 
   /**
+    * This table is created below again, so commenting out as overwrite option not working with spark3.0
+
   empDF.write
     .mode(SaveMode.Overwrite)
     .saveAsTable("employees")
@@ -64,8 +66,14 @@ object SparkSql extends App{
     "departments",
     "dept_emp",
     "dept_manager",
-   // "employees",
+    "employees",
     "movies",
     "salaries",
     "titles"))
+
+
+  //read from spark tables
+  val emp2DF = spark.read.table("employees")
+  emp2DF.show()
+
 }
