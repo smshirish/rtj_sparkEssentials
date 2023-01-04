@@ -86,4 +86,33 @@ object Datasets extends App{
   carsDS.select(avg(col("Horsepower")))
  ///   .show()
 
+  /**
+  Joins on DS
+   */
+  //{"id":1,"name":"AC/DC","hometown":"Sydney","year":1973}
+  case class Band(id: Long, name: String, hometown: String, year: Long)
+  case class GuitarPlayer(id: Long, name: String, guitars: Seq[Long], band: Long)
+  case class Guitar(id: Long, model: String, make: String, guitarType: String)
+
+  val guitarsDS = readDF("guitars.json").as[Guitar]
+  val guitarPlayersDS = readDF("guitarPlayers.json").as[GuitarPlayer]
+  val bandsDS = readDF("bands.json").as[Band]
+
+  //join
+  val guitarPlayerBandsDS : Dataset[(GuitarPlayer, Band)]= guitarPlayersDS.joinWith(bandsDS, guitarPlayersDS.col("band") === bandsDS.col("id"), "inner")
+
+  ///guitarPlayerBandsDS.show()
+
+  /**
+    * Exercise : Join guitarsDS and guitasPlayersDS
+    */
+
+  private val guitarsGuitarPlayers: Dataset[(GuitarPlayer, Guitar)] = guitarPlayersDS.joinWith( guitarsDS, array_contains(guitarPlayersDS.col("guitars"), guitarsDS.col("id")), "outer")
+ ///  guitarsGuitarPlayers.show()
+
+  //DS grouping -> Joins and Groups are wide transformation and they will cause shuffle
+  carsDS.groupByKey(_.Origin).count()
+    .show()
+
+
 }
