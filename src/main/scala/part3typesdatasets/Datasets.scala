@@ -77,13 +77,13 @@ object Datasets extends App{
 
   //powerful cars
   carsDS.filter( car =>  car.Horsepower.getOrElse(0L) > 140L)
-    .show()
+  ///   .show()
 
   val avgHP =  carsDS.map(_.Horsepower.getOrElse(0L)).reduce(_ + _ )/ carsCount
-  println(avgHP)
+ /// println(avgHP)
 
   //DS also has access to all DF functions
   carsDS.select(avg(col("Horsepower")))
-    .show()
+ ///   .show()
 
 }
