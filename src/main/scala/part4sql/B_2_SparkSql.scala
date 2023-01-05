@@ -6,14 +6,13 @@ import part1recap.SparkUtils
 import part2dataframes.JoinsExercises
 import part2dataframes.JoinsExercises._
 
-object SparkSql extends App{
+object B_2_SparkSql extends App{
 
-  val sparkDBBasePath = "src/main/resources/warehouse"
 
   val spark = SparkSession.builder()
     .appName("SparkSQL")
     .config("spark.master","local")
-    .config("spark.sql.warehouse.dir",sparkDBBasePath)
+    .config("spark.sql.warehouse.dir",SparkUtils.SPARK_DB_PATH)
     //option below commented out as it does not work .Not a show stopped as one time transfer stil possible
   //  .config("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation","true")  //Spark 2 only hack to allow table override
     .getOrCreate()
@@ -51,14 +50,14 @@ object SparkSql extends App{
     * "spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation","true""  does not work
     **/
 
-  SparkUtils.transferTables(spark, sparkDBBasePath, List(
+  SparkUtils.transferTables(spark, SparkUtils.SPARK_DB_PATH, List(
     "departments",
     "dept_emp",
     "dept_manager",
     "employees",
     "movies",
     "salaries",
-    "titles"))
+    "titles"),true)
 
 
   //read from spark tables

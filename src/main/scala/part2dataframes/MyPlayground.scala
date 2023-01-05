@@ -2,81 +2,47 @@ package part2dataframes
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.functions.{col,column,expr}
+import org.apache.spark.sql.functions._
+import part1recap.SparkUtils
 object MyPlayground extends App{
 
-  //app to run my code snippets
   val spark = SparkSession.builder()
+    .appName("C_3_SparkSqlExercises")
     .config("spark.master","local")
-    .appName("MyPlayground")
+    .config("spark.sql.warehouse.dir","src/main/resources/warehouse")
     .getOrCreate()
 
-  private def readTableAsDataframe(tableName: String) = {
-    spark.read
-      .format("jdbc")
-      .option("driver", "org.postgresql.Driver")
-      .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
-      .option("user", "docker")
-      .option("password", "docker")
-      .option("dbtable", s"public.$tableName" )
-      .load()
-  }
+  import spark.implicits._
+  /**
+  val empDFParquet = spark.read.parquet("src/main/resources/warehouse/rtjvm.db/employees")
+  empDFParquet.printSchema()
+  empDFParquet.createTempView("employees")
+**/
+ // SparkUtils.transferTables(spark,SparkUtils.SPARK_DB_PATH,List("employees"),false)
 
-  //reading from remote DB
-  val employeesDF = readTableAsDataframe("employees")
+ val carsDF = spark.read
+   .option("inferSchema","true")
+   .json("src/main/resources/data/cars.json")
 
-  //employeesDF.show(false)
+  // to_date(col("Release_Date"),"dd-MMM-yy").as("ActualReleaseDate")
+  //val carsWithYearDF = carsDF.select(col("Name"), to_date(col("Year"),"yyyy-MM-dd").as("ActualYear"), col("Origin")).orderBy(col("ActualYear").desc_nulls_last)
 
-  val salariesDF = readTableAsDataframe("salaries").withColumnRenamed("emp_no","emp_no_salaries")
+  //carsWithYearDF.select(col("Name"),col("ActualYear") ).where((col("ActualYear") > "1971-01-01") and (col("ActualYear") < "1976-01-01")).show(500)
+  ///carsWithYearDF.show(500)
+
+
+ // val europeanCarsDF2 = carsDF.where(col("Origin") =!= "USA").show()
+ val empDF = SparkUtils.readTable(spark,"employees")// .where((col("hire_date") > "1985-01-01") and (col("hire_date") < "1988-01-01") )
+  empDF.show()
+  empDF.createOrReplaceTempView("employees")
+
 
   /**
-    * Joins exercises
-    * 1: Show all employeed and their max salary (Salary might have changed over time)
-    * 2: Show all employees who were never managers
-    * 3:find job titles of best paid 10 employees in the company
+    * Exercise2: How many employees were hired between jan 1 2000 and jan 1 2001.
     */
-
-
-  val maxSalariesDF =  salariesDF.groupBy(col("emp_no_salaries"))
-    .agg(
-      max(col("salary")).as("max_salary")
-    ).withColumnRenamed("emp_no_salaries","emp_no_2")
-
-  maxSalariesDF.show
-
-  val empWithSalariesDF = employeesDF
-    .join(maxSalariesDF, (employeesDF.col("emp_no") === maxSalariesDF.col("emp_no_2")),"inner" )
-    .select("emp_no","first_name","last_name","max_salary").orderBy()
-  /// .show(false)
-
-  val managersDF = readTableAsDataframe("dept_manager")
-
-  ///managersDF.show
-
-  val empsWHoWereNotManagers = employeesDF.join(managersDF, employeesDF.col("emp_no") === managersDF.col("emp_no"),"leftanti" )
-  println("!!!!!empsWHoWereNotManagers!!!!!")
-  ///empsWHoWereNotManagers.show(false)
-
-  salariesDF.printSchema()
-  salariesDF.show(100,false)
-
-  //job title of best paid top 10 employees.
-  val latestEmpJobTitlesDF = readTableAsDataframe("titles")
-    .groupBy(col("emp_no"))
-    .agg( max(col("to_date")).as("latest_title_to_date"))
-    .withColumnRenamed("emp_no","emp_no_2")
-  ///latestEmpJobTitlesDF.show(100,false)
-
-  val empWithLatestJobTitles = employeesDF.join(latestEmpJobTitlesDF, employeesDF.col("emp_no") === latestEmpJobTitlesDF.col("emp_no_2") )
-  empWithLatestJobTitles.show(100,false)
-
-  val latestSalariesDF = salariesDF
-    .groupBy(col("emp_no_salaries"))
-    .agg( max(col("to_date")).as("latest_salary_to_date"))
-
-  val empLatestSaleriesWithTItles = empWithLatestJobTitles.join(salariesDF,
-    (empWithLatestJobTitles.col("emp_no") === salariesDF.col("emp_no_salaries")) and (empWithLatestJobTitles.col("latest_title_to_date") === salariesDF.col("to_date")))
-    .orderBy("emp_no")
-  empLatestSaleriesWithTItles.show(100,false)
+  spark.sql(" create database rtjvm ")
+  spark.sql(" use rtjvm")
+  val df = spark.sql(" select * from employees where  hire_date > '1985-01-01' and hire_date <  '1988-01-01' ")
+  df.show()
 
 }

@@ -1,11 +1,13 @@
 package part1recap
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
-import part4sql.SparkSqlExercises.sparkDBBasePath
+import part4sql.C_3_SparkSqlExercises.sparkDBBasePath
 
 import java.io.File
 
 object SparkUtils {
+
+  val SPARK_DB_PATH = "src/main/resources/warehouse"
 
   def readTable(spark:SparkSession, tableName: String) = {
     spark.read
@@ -29,11 +31,15 @@ object SparkUtils {
       dirToDelete.delete()
   }
 
-  def transferTables(spark:SparkSession,sparkDBBasePath:String,tableNames:List[String]) =  tableNames.foreach{ tableName =>
+  def transferTables(spark:SparkSession,sparkDBBasePath:String,tableNames:List[String], shouldWrite :Boolean = false) =  tableNames.foreach{ tableName =>
     deleteDBTableDir(sparkDBBasePath,tableName)
     val tableDF = readTable(spark,tableName)
-    tableDF.write
-      .mode(SaveMode.Overwrite)
-      .saveAsTable(tableName)
+    //make table visible to spark SQL
+    tableDF.createOrReplaceTempView(tableName)
+    if (shouldWrite){
+      tableDF.write
+        .mode(SaveMode.Overwrite)
+        .saveAsTable(tableName)
+    }
   }
 }

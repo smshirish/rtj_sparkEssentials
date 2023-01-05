@@ -1,7 +1,7 @@
 package part4sql
 
 //code copied from git hub of this course
-object SparkShell extends App {
+object A_1_SparkShell extends App {
 
   /**
     * This file contains a dummy application where I added what we learned in the Spark Shell lecture.
