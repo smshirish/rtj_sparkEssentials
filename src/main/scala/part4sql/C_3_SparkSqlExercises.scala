@@ -36,11 +36,11 @@ object C_3_SparkSqlExercises extends App{
   /// movies2DF.show()
 
   /**
-    * Exercise2: How many employees were hired between jan 1 2000 and jan 1 2001.
+    * Exercise2: How many employees were hired between jan 1 1999 and jan 1 2001.
     */
   //load and also make the table visible for spark as temp table.
   SparkUtils.transferTables(spark,SparkUtils.SPARK_DB_PATH, List("employees","departments","dept_emp","salaries"),false)
-  val employeesHiredBetweenDatesDF = spark.sql(" select * from employees where  hire_date > '1985-01-01' and hire_date <  '1988-01-01' ")
+  val employeesHiredBetweenDatesDF = spark.sql(" select * from employees where  hire_date > '1999-01-01' and hire_date <  '2001-01-01' ")
   /// employeesHiredBetweenDatesDF.show()
 
   /**
@@ -72,7 +72,7 @@ object C_3_SparkSqlExercises extends App{
       | , e.emp_no , e.first_name ,e.hire_date, e.last_name, e.birth_date, e.hire_date, e.gender
       |
       | from employees e , latestSalaries s , dept_emp de , departments d
-      |  where  e.hire_date > '1985-01-01' and e.hire_date <  '1988-01-01'
+      |  where  e.hire_date > '1999-01-01' and e.hire_date <  '2001-01-01'
       |  and e.emp_no = s.emp_no
       |  and e.emp_no = de.emp_no
       |  and de.dept_no = d.dept_no
@@ -85,7 +85,7 @@ object C_3_SparkSqlExercises extends App{
       |
       | from employees e , latestSalaries s , dept_emp de
       | , departments d
-      |  where  e.hire_date > '1985-01-01' and e.hire_date <  '1988-01-01'
+      |  where  e.hire_date > '1999-01-01' and e.hire_date <  '2001-01-01'
       |  and e.emp_no = s.emp_no
       |  and e.emp_no = de.emp_no
       |  and de.dept_no = d.dept_no
@@ -96,6 +96,6 @@ object C_3_SparkSqlExercises extends App{
   /**
     * exercise 4: Name of the best paying department for employes hired between these dates
     */
-  avgSalaryPerDeptDF.withColumnRenamed("avg(salary)", "avg_salary").orderBy(col("avg_salary").desc_nulls_last).limit(1).show()
+  ///avgSalaryPerDeptDF.withColumnRenamed("avg(salary)", "avg_salary").orderBy(col("avg_salary").desc_nulls_last).limit(1).show()
 
 }
