@@ -4,7 +4,7 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 import part1recap.SparkUtils
 
 import java.io.File
-
+import org.apache.spark.sql.functions._
 object C_3_SparkSqlExercises extends App{
 
   val sparkDBBasePath = "src/main/resources/warehouse"
@@ -44,7 +44,7 @@ object C_3_SparkSqlExercises extends App{
   /// employeesHiredBetweenDatesDF.show()
 
   /**
-    * Exercise2: Show the average salaries for the  employees were hired between those dates, grouped by department .
+    * Exercise3: Show the average salaries for the  employees were hired between those dates, grouped by department .
     */
   val departmentsDF = spark.sql("select * from departments ")
   /// departmentsDF.show()  // |dept_no|         dept_name|
@@ -83,7 +83,8 @@ object C_3_SparkSqlExercises extends App{
     """
       | select avg(s.salary) , d.dept_name
       |
-      | from employees e , latestSalaries s , dept_emp de , departments d
+      | from employees e , latestSalaries s , dept_emp de
+      | , departments d
       |  where  e.hire_date > '1985-01-01' and e.hire_date <  '1988-01-01'
       |  and e.emp_no = s.emp_no
       |  and e.emp_no = de.emp_no
@@ -91,5 +92,10 @@ object C_3_SparkSqlExercises extends App{
       |  group by d.dept_name
       |""".stripMargin)
   avgSalaryPerDeptDF.show()
+
+  /**
+    * exercise 4: Name of the best paying department for employes hired between these dates
+    */
+  avgSalaryPerDeptDF.withColumnRenamed("avg(salary)", "avg_salary").orderBy(col("avg_salary").desc_nulls_last).limit(1).show()
 
 }
