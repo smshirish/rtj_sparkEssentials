@@ -22,5 +22,9 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-api" % "2.4.1",
   "org.apache.logging.log4j" % "log4j-core" % "2.4.1",
   // postgres for DB connectivity
-  "org.postgresql" % "postgresql" % postgresVersion
+  "org.postgresql" % "postgresql" % postgresVersion,
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.1",
+"com.fasterxml.jackson.core" % "jackson-databind" % "2.5.3",
+///  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.2.2",
+  "com.lihaoyi" %% "upickle" % "0.7.1"
 )

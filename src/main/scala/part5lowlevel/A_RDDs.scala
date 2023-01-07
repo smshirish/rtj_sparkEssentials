@@ -1,7 +1,7 @@
 package part5lowlevel
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 import scala.io.Source
 
@@ -59,8 +59,43 @@ object A_RDDs extends App {
 
   //Rdd to dataset
   val fromRDD_DS = spark.createDataset(stocksRDD3)
-  fromRDD_DS.show()
+///  fromRDD_DS.show()
 
+  ///RDD Transformations
+  val microsoftStocks: RDD[StockValue] = stocksRDD.filter(_.symbol == "MSFT") //lazy transform
+  ///println(microsoftStocks.count())  //eager Action
+
+  val companyNamesRDD = stocksRDD.map( _.symbol).distinct() //also lazy
+ /// companyNamesRDD.toDF().show()
+
+  //min and max
+  implicit val stockOrdering : Ordering[StockValue] = Ordering.fromLessThan( (a, b) => a.price < b.price )
+  val minMsft = microsoftStocks.min()
+///  println(minMsft)
+
+  //reduce
+  numbersRDD.reduce( _ + _)
+
+  //grouping
+  private val groupedStocksRDD: RDD[(String, Iterable[StockValue])] = stocksRDD.groupBy(_.symbol)
+
+  val repartitionedSTocksRDD = stocksRDD.repartition(30)
+
+  /**
+    * repartitioning is expensive,it involves shuffling
+    * Best practice:Partitione arly and then process
+    * Ideal partition size:10-100 mb
+
+  repartitionedSTocksRDD.toDF().write
+    .mode(SaveMode.Overwrite)
+    .parquet("src/main/resources/data/stocks30")
+
+  val coalescedRDD = stocksRDD.coalesce(15)
+  coalescedRDD.toDF().write
+    .mode(SaveMode.Overwrite)
+    .parquet("src/main/resources/data/stocks15")
+
+    */
 
 
 }
