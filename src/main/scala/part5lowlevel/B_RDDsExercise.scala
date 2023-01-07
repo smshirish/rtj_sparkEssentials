@@ -7,14 +7,7 @@ import scala.io.Source
 
 object B_RDDsExercise extends App{
 
-  //
-  // {"Title":"The Land Girls","US_Gross":146083,"Worldwide_Gross":146083,"US_DVD_Sales":null,
-  // "Production_Budget":8000000,"Release_Date":"12-Jun-98","MPAA_Rating":"R","Running_Time_min":null
-  // ,"Distributor":"Gramercy","Source":null,"Major_Genre":null,"Creative_Type":null,"Director":null,
-  // "Rotten_Tomatoes_Rating":null,"IMDB_Rating":6.1,"IMDB_Votes":1071}
-
-  // Exercises :Read movies json as rdd of case class
-
+// Exercises :Read movies json as rdd of case class
 
   val spark = SparkSession.builder()
     .appName("RDD Exercises -1 ")
@@ -27,38 +20,34 @@ object B_RDDsExercise extends App{
 
   case class Movies(title:String , genre:String, rating:String)
 
-  def readStocks(fileName:String) =
-    Source.fromFile(fileName)
-      .getLines()
-      .map( line => line.split(",|\\{|\\}|\\:"))
-      //.map( line => line.split(",|\\{|\\}|\\:"))
-    //  .map(tokens => Movies(tokens(1),tokens(21),tokens(28).toDouble))
-      .toList
 
-  //test code to parse the file into tokens  D:/shirish/workspace/spark/spark-essentials/src/main/resources/data/movies_copy.json
-  val rdds2: Seq[Array[String]] = readStocks("src/main/resources/data/movies_copy.json")
-  //val rdds  = readJson("src/main/resources/data/movies.json")
-  rdds2.foreach( _.foreach(println(_)))
-  ///println(rdds2)
-
-  //map to Movies
-  val moviesSeq: Seq[Movies] = Source.fromFile("D:/shirish/workspace/spark/spark-essentials/src/main/resources/data/movies_copy.json")
+  val lines = Source.fromFile("D:/shirish/workspace/spark/spark-essentials/src/main/resources/data/movies.json")
     .getLines()
-    .map(line => line.split(",|\\{|\\}|\\:"))  // Split each line of json by seperators { } , : -> This gives per line key values as tokens.
-    .map(tokens => Movies(tokens(2), tokens(22), tokens(29)))
     .toList
 
+  val tuples =
+    lines.map(ujson.read(_)).map(
+      e => (
+        Option(e("Title")).getOrElse("").toString
+        ,Option(e("Major_Genre")).getOrElse(""),
+        Option(e("IMDB_Rating")).getOrElse(0)
+      )
+    )
 
-  ///val moviesRDD1: RDD[Movies] = sc.parallelize(moviesSeq)
-  ///moviesRDD1.toDF().show()
+  val movies=  tuples.map( t => Movies(t._1, t._2.toString, t._3.toString) )
 
+  val moviesRDD: RDD[Movies] = sc.parallelize(movies)
+ moviesRDD.toDF().show()
 
+  // Exercise2  :Show distinct genre as RDD
 
+ // implicit val stockOrdering : Ordering[Movies] = Ordering.fromLessThan( (a, b) => a.genre.compareTo(b.genre) ==0 )
 
-  lines.map(ujson.read(_)).map(
-    e => ( e("Title").str, e("Major_Genre") )
-  )
+  ///val genreRDD = moviesRDD.map(_.genre).distinct()
+  ///genreRDD.toDF().show()
 
-
+  //exercise 3 : Select all the movies in the drama Genre with IMDB rating greater than 6
+  val dramasWithGoodRatingRDD = moviesRDD.filter( movie => movie.genre == """"Drama"""" && movie.rating.toDouble > 6.0 )//
+  dramasWithGoodRatingRDD.toDF().show()
 
 }

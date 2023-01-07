@@ -33,7 +33,7 @@ object A_RDDs extends App {
 
   val stocksRDD = sc.parallelize(readStocks("src/main/resources/data/stocks.csv"))
 
-  /// stocksRDD.toDF().show()
+  /// moviesRDD.toDF().show()
 
   //2 -reading from file B
 
@@ -90,7 +90,7 @@ object A_RDDs extends App {
     .mode(SaveMode.Overwrite)
     .parquet("src/main/resources/data/stocks30")
 
-  val coalescedRDD = stocksRDD.coalesce(15)
+  val coalescedRDD = moviesRDD.coalesce(15)
   coalescedRDD.toDF().write
     .mode(SaveMode.Overwrite)
     .parquet("src/main/resources/data/stocks15")
