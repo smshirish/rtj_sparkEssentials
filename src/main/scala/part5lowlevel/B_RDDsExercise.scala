@@ -47,7 +47,11 @@ object B_RDDsExercise extends App{
   ///genreRDD.toDF().show()
 
   //exercise 3 : Select all the movies in the drama Genre with IMDB rating greater than 6
-  val dramasWithGoodRatingRDD = moviesRDD.filter( movie => movie.genre == """"Drama"""" && movie.rating.toDouble > 6.0 )//
+  val dramasWithGoodRatingRDD = moviesRDD.filter(
+    movie => movie.genre == """"Drama""""
+    &&  movie.rating != "null"
+    && movie.rating.toDouble > 6.0
+  )
   dramasWithGoodRatingRDD.toDF().show()
 
 }
