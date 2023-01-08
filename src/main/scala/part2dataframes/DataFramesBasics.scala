@@ -51,7 +51,7 @@ object DataFramesBasics extends App{
   //create row
   val myRow =  Row("chevrolet chevelle malibu",18.0,8L,307.0,130L,3504L,12.0,"1970-01-01","USA")
 
-  //create tuples from tuples
+  //create moviesTuples from moviesTuples
   val cars = Seq(
     ("chevrolet chevelle malibu",18.0,8L,307.0,130L,3504L,12.0,"1970-01-01","USA"),
     ("buick skylark 320",15.0,8L,350.0,165L,3693L,11.5,"1970-01-01","USA"),
