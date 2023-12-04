@@ -41,19 +41,6 @@ object ColumnsAndExpressions extends App {
   carsDF.select(("Name"),("Origin"))
   //not allowed   carsDF.select(("Name"),col("Origin"))
 
-  /**
-   * EXPRESSIONS
-   * root
-   * |-- Acceleration: double (nullable = true)
-   * |-- Cylinders: long (nullable = true)
-   * |-- Displacement: double (nullable = true)
-   * |-- Horsepower: long (nullable = true)
-   * |-- Miles_per_Gallon: double (nullable = true)
-   * |-- Name: string (nullable = true)
-   * |-- Origin: string (nullable = true)
-   * |-- Weight_in_lbs: long (nullable = true)
-   * |-- Year: string (nullable = true)
-   */
   //simple expr
   val simpleExpr = carsDF.col("Weight_in_lbs")
   val weightInKGExpression = carsDF.col("Weight_in_lbs") / 2.2
