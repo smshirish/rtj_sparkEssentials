@@ -3,7 +3,7 @@ package shirish.dataframebasics
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{DoubleType, LongType, StringType, StructField, StructType}
 
-object Playground extends App {
+object DataframeBasics extends App {
 
   val PATH = "src/main/resources/data/"
 
