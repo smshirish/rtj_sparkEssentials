@@ -72,10 +72,11 @@ object JoinsExercises extends App {
 
   val latestEmploymentDF = salariesDF.groupBy(col("emp_no")).agg(max("from_date").as("from_date")).orderBy(col("emp_no").desc_nulls_last)
   println("YYYYYY ")
-  latestEmploymentDF.show()
+  val latestEmp3 = latestEmploymentDF.withColumnRenamed("emp_no","emp_no_2").withColumnRenamed("from_date","from_date_2")
+  latestEmp3.show()
 
-  val latestSalaryDF = salariesDF.join(latestEmploymentDF, ( (salariesDF.col("emp_no") === latestEmploymentDF.col("emp_no"))
-    and (salariesDF.col("from_date") === latestEmploymentDF.col("from_date"))))
+  val latestSalaryDF = salariesDF.join(latestEmp3, ( (salariesDF.col("emp_no") === latestEmp3.col("emp_no_2"))
+    and (salariesDF.col("from_date") === latestEmp3.col("from_date_2"))))
   println("ZZZ")
  /// latestSalaryDF.filter(salariesDF.col("emp_no")  === "499990").show()
   latestSalaryDF.orderBy(col("salary").desc_nulls_last).show()
@@ -84,10 +85,9 @@ object JoinsExercises extends App {
   println("2222")
   titlesDF.show()  //emp_no|           title| from_date|
 
-  println("3333")
-  latestSalaryDF.dtypes.foreach(f=>println(f._1+","+f._2))
-  println("44444")
-  latestSalaryDF.join(titlesDF, (latestSalaryDF.col("emp_no") === titlesDF.col("emp_no"))).show
+  import spark.implicits._
+ val top10Employees =  latestSalaryDF.join(titlesDF, (latestSalaryDF.col("emp_no") === titlesDF.col("emp_no"))).orderBy(col("salary").desc_nulls_last).limit(10)
+  top10Employees.show()
 
 
 }
