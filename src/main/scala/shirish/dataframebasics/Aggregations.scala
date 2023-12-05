@@ -78,7 +78,7 @@ object Aggregations extends App {
 
   moviesDF.select( (col("Worldwide_Gross") + col("US_Gross") + col("US_DVD_Sales")).as("total_profits"))
     .select(sum("total_profits"))
-  .show()
+ // .show()
 
   moviesDF.select(countDistinct(col("Director")))
   //  .show()
