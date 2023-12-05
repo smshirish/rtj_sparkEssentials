@@ -40,54 +40,47 @@ object JoinsExercises extends App {
 
   // 1: Show all employees and their max salary
   val employeesDF = readDBTable("public.employees")
-  ///employeesDF.show()
   val salariesDF = readDBTable("public.salaries")
- /// salariesDF.show()
   val maxSalariesDF = salariesDF.groupBy(col("emp_no")).max("salary")
-  ///maxSalariesDF.show()
+  val empWithMaxSalariesDF_solution1 = employeesDF.join(maxSalariesDF, employeesDF.col("emp_no") === maxSalariesDF.col("emp_no"))
+  empWithMaxSalariesDF_solution1.show()
 
-  val employeeSalariesDF = employeesDF.join(maxSalariesDF, employeesDF.col("emp_no") === maxSalariesDF.col("emp_no"))
-  // employeeSalariesDF.show()
 
   // 2: show all emp who were never managers
-
-  val deptMAnagersDF = readDBTable("public.dept_manager")
- // deptMAnagersDF.show()
-
-  deptMAnagersDF.filter(col("emp_no") === "12940")
-    ///.show()
-  val empWhoWereNeverManagersDF = employeesDF.join(deptMAnagersDF, employeesDF.col("emp_no") === deptMAnagersDF.col("emp_no"),"left_anti")
-//  empWhoWereNeverManagersDF.show()
+  val deptManagersDF = readDBTable("public.dept_manager")
+  val empWhoWereNeverManagersDF_solution2 = employeesDF.join(deptManagersDF, employeesDF.col("emp_no") === deptManagersDF.col("emp_no"),"left_anti")
+  empWhoWereNeverManagersDF_solution2.show()
 
   //3:Job titles of best paid 10 employees in the company
-  import spark.implicits._
+
   val titlesDF = readDBTable("public.titles")
 
-  ///val latestJobTitleDF = titlesDF.groupBy(col("emp_no")).agg(max("from_date"))
-  //latestJobTitleDF.show()
- // employeesDF.orderBy(col("emp_no").desc_nulls_last).show()
-  println("XXXXXXX ")
-  salariesDF.orderBy(col("emp_no").desc_nulls_last)
-    .show()
+  //option 1:With column renames for duplicate columns
+  /*
+  *
 
-  val latestEmploymentDF = salariesDF.groupBy(col("emp_no")).agg(max("from_date").as("from_date")).orderBy(col("emp_no").desc_nulls_last)
-  println("YYYYYY ")
-  val latestEmp3 = latestEmploymentDF.withColumnRenamed("emp_no","emp_no_2").withColumnRenamed("from_date","from_date_2")
-  latestEmp3.show()
+  val latestEmploymentDF = salariesDF.withColumnRenamed("emp_no","emp_no_2").withColumnRenamed("from_date","from_date_2")
+    .groupBy(col("emp_no_2")).agg(max("from_date_2").as("from_date_2")).orderBy(col("emp_no_2").desc_nulls_last)
 
-  val latestSalaryDF = salariesDF.join(latestEmp3, ( (salariesDF.col("emp_no") === latestEmp3.col("emp_no_2"))
-    and (salariesDF.col("from_date") === latestEmp3.col("from_date_2"))))
-  println("ZZZ")
- /// latestSalaryDF.filter(salariesDF.col("emp_no")  === "499990").show()
-  latestSalaryDF.orderBy(col("salary").desc_nulls_last).show()
-  println("11111")
+  val latestSalaryDF = salariesDF.join(latestEmploymentDF, ( (salariesDF.col("emp_no") === latestEmploymentDF.col("emp_no_2"))
+    and (salariesDF.col("from_date") === latestEmploymentDF.col("from_date_2"))))
 
-  println("2222")
-  titlesDF.show()  //emp_no|           title| from_date|
+ val top10Employees_solution3 =  latestSalaryDF.join(titlesDF.drop("from_date","to_date"), (latestSalaryDF.col("emp_no") === titlesDF.col("emp_no"))).orderBy(col("salary").desc_nulls_last).limit(10)
+  top10Employees_solution3.show()
 
-  import spark.implicits._
- val top10Employees =  latestSalaryDF.join(titlesDF, (latestSalaryDF.col("emp_no") === titlesDF.col("emp_no"))).orderBy(col("salary").desc_nulls_last).limit(10)
-  top10Employees.show()
+     */
+
+  //option 2:Drop duplicate columns
+  val latestEmploymentDF2 = salariesDF
+    .groupBy(col("emp_no")).agg(max("from_date").as("from_date")).orderBy(col("emp_no").desc_nulls_last)
+
+  val latestSalaryDF2 = salariesDF.join(latestEmploymentDF2, ((salariesDF.col("emp_no") === latestEmploymentDF2.col("emp_no"))
+    and (salariesDF.col("from_date") === latestEmploymentDF2.col("from_date")))).drop(latestEmploymentDF2.col("emp_no")).drop(latestEmploymentDF2.col("from_date"))
+
+  val top10Employees2_solution3 = latestSalaryDF2.join(titlesDF.drop("from_date","to_date"), (latestSalaryDF2.col("emp_no") === titlesDF.col("emp_no")))
+    .drop(titlesDF.col("emp_no"))
+    .orderBy(col("salary").desc_nulls_last).limit(10)
+  top10Employees2_solution3.show()
 
 
 }
